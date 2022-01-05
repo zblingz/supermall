@@ -8,6 +8,7 @@
       <detail-goods-info :detail-info='detailInfo'/>
       <detail-param-info :param-info='paramInfo'/>
       <detail-comment-info :comment-info="commentInfo"/>
+      <goods-list :goods='recommends'/>
     </scroll>
   </div>
 </template>
@@ -22,8 +23,13 @@ import DetailParamInfo from './childComps/DetailParamInfo.vue'
 import DetailCommentInfo from './childComps/DetailCommentInfo.vue'
 
 import Scroll from 'components/common/scroll/Scroll'
+import GoodsList from 'components/content/goods/GoodsList.vue'
 
-import {getDetail, Goods, Shop, GoodsParam} from 'network/detail'
+import emitter from 'tiny-emitter'
+
+
+import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail'
+import {itemListenerMixin} from 'common/mixin'
 
 export default {
   name: 'Detail',
@@ -35,7 +41,8 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
-    Scroll
+    Scroll,
+    GoodsList
   },
   data() {
     return {
@@ -46,6 +53,7 @@ export default {
       detailInfo: {},
       paramInfo: {},
       commentInfo: {},
+      recommends: []
     }
   },
   methods: {
@@ -53,6 +61,7 @@ export default {
       this.$refs.scroll.refresh()
     }
   },
+  mixins: [itemListenerMixin],
   created() {
     //保存请求来的iid
     this.iid = this.$route.params.iid
@@ -77,13 +86,21 @@ export default {
       this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
 
       //获取评论信息
-      if(data.rate.list !== 0) {
+      if(data.rate.list) {
         this.commentInfo = data.rate.list[0]
       }
     })
 
     //请求推荐数据
-    
+    getRecommend().then(res => {
+      this.recommends = res.data.list
+    })
+  },
+  mounted() {
+  },
+  destroyed() {
+    //取消全局事件的监听
+    emitter.prototype.off('itemImageLoad', this.itemImgListener)
   },
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="goodsItem.show.img" alt="" @load="imgLoad">
+    <img :src="showImage" alt="" @load="imgLoad">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -12,6 +12,7 @@
 <script>
 import emitter from 'tiny-emitter'
 export default {
+  name: 'GoodsListItem',
   props: {
     goodsItem: {
       type: Object,
@@ -21,7 +22,9 @@ export default {
     }
   },
   computed: {
-  
+    showImage() {
+      return this.goodsItem.image || this.goodsItem.show.img
+    }
   },
   methods: {
     imgLoad() {
@@ -35,7 +38,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .goods-item {
   padding-bottom: 40px;
   position: relative;

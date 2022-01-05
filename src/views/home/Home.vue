@@ -47,8 +47,7 @@ import emitter from 'tiny-emitter'
 
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
-import { debounce } from 'common/utils.js'
-
+import {itemListenerMixin} from 'common/mixin'
 export default {
   name: "Home",
   data() {
@@ -64,9 +63,11 @@ export default {
       currentType: "pop",
       isShowBackTop: false,
       tabOffset: 0,
-      isTabFixed: false
+      isTabFixed: false,
+      saveY: 0
     };
   },
+  mixins: [itemListenerMixin],
   computed: {
     showGoods() {
       return this.goods[this.currentType].list;
@@ -92,11 +93,6 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
-    //3.接受图片监听事件
-    const refresh = debounce(this.$refs.scroll.refresh, 500)
-    emitter.prototype.on('itemImageLoad', () => {
-      refresh()
-    })
   },
   methods: {
     /* 事件监听相关方法 */
@@ -156,7 +152,14 @@ export default {
     console.log('home destroyed');
   },
   activated() {
+    this.$refs.scroll.scrollTo(0, this.saveY, 0)
     this.$refs.scroll.refresh()
+  },
+  deactivated() {
+    //获取首页的滚动的Y值
+    this.saveY = this.$refs.scroll.scrollY
+    //取消全局事件的监听
+    emitter.prototype.off('itemImageLoad', this.itemImgListener)
   },
 };
 </script>
