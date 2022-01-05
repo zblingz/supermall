@@ -9,6 +9,7 @@ export function getDetail(iid) {
   })
 }
 
+
 export class Goods {
   constructor(itemInfo, columns, services) {
     this.title = itemInfo.title
@@ -32,6 +33,7 @@ export class Shop {
     this.goodsCount = shopInfo.cGoods
   }
 }
+
 
 export class GoodsParam {
   constructor(info, rule) {

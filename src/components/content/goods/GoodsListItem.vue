@@ -20,6 +20,9 @@ export default {
       }
     }
   },
+  computed: {
+  
+  },
   methods: {
     imgLoad() {
       //发射图片监听事件

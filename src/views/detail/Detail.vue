@@ -7,6 +7,7 @@
       <detail-shop-info :shop="shop"/>
       <detail-goods-info :detail-info='detailInfo'/>
       <detail-param-info :param-info='paramInfo'/>
+      <detail-comment-info :comment-info="commentInfo"/>
     </scroll>
   </div>
 </template>
@@ -18,6 +19,7 @@ import DetailBaseInfo from './childComps/DetailBaseInfo.vue'
 import DetailShopInfo from './childComps/DetailShopInfo.vue'
 import DetailGoodsInfo from './childComps/DetailGoodsInfo.vue'
 import DetailParamInfo from './childComps/DetailParamInfo.vue'
+import DetailCommentInfo from './childComps/DetailCommentInfo.vue'
 
 import Scroll from 'components/common/scroll/Scroll'
 
@@ -32,6 +34,7 @@ export default {
     DetailShopInfo,
     DetailGoodsInfo,
     DetailParamInfo,
+    DetailCommentInfo,
     Scroll
   },
   data() {
@@ -41,7 +44,8 @@ export default {
       goods: {},
       shop: {},
       detailInfo: {},
-      paramInfo: {}
+      paramInfo: {},
+      commentInfo: {},
     }
   },
   methods: {
@@ -55,7 +59,7 @@ export default {
 
     //根据iid请求详情数据
     getDetail(this.iid).then(res => {
-      console.log(res);
+      // console.log(res);
       const data = res.result
       //获取顶部图片轮播数据
       this.topImages = data.itemInfo.topImages
@@ -71,7 +75,15 @@ export default {
 
       //获取参数信息
       this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
+
+      //获取评论信息
+      if(data.rate.list !== 0) {
+        this.commentInfo = data.rate.list[0]
+      }
     })
+
+    //请求推荐数据
+    
   },
 }
 </script>
@@ -80,7 +92,7 @@ export default {
 #detail {
   height: 100vh;
   position: relative;
-  z-index: 1;
+  z-index: 9;
   background-color: #fff;
 }
 
@@ -90,7 +102,7 @@ export default {
   background-color: #fff;
 }
 
-/* .detail-content {
+/* .content {
   position: absolute;
   top: 44px;
   left: 0;
