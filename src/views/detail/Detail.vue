@@ -1,14 +1,14 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"/>
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar class="detail-nav" @titleClick='titleClick' ref="nav"/>
+    <scroll class="content" ref="scroll" :probe-type='3' @scroll="contentScroll">
       <detail-swiper :topImages="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
-      <detail-goods-info :detail-info='detailInfo'/>
-      <detail-param-info :param-info='paramInfo'/>
-      <detail-comment-info :comment-info="commentInfo"/>
-      <goods-list :goods='recommends'/>
+      <detail-goods-info :detail-info='detailInfo' @imageLoad='imageLoad'/>
+      <detail-param-info ref="params" :param-info='paramInfo'/>
+      <detail-comment-info ref="comment" :comment-info="commentInfo"/>
+      <goods-list ref="recommend" :goods='recommends'/>
     </scroll>
   </div>
 </template>
@@ -30,6 +30,7 @@ import emitter from 'tiny-emitter'
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail'
 import {itemListenerMixin} from 'common/mixin'
+import {debounce} from 'common/utils'
 
 export default {
   name: 'Detail',
@@ -53,14 +54,42 @@ export default {
       detailInfo: {},
       paramInfo: {},
       commentInfo: {},
-      recommends: []
+      recommends: [],
+      themeTopYs: [],
+      getThemeTopYs: null,
+      currentIndex: 0
     }
   },
   methods: {
-    imgLoad() {
-      this.$refs.scroll.refresh()
+    imageLoad() {
+      // this.$refs.scroll.refresh()
+      this.refresh()
+      this.getThemeTopYs()
+    },
+    titleClick(index) {
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+    },
+    contentScroll(position) {
+      const positionY = -position.y
+      let length = this.themeTopYs.length
+      //普通做法
+      // for( let i = 0; i< length; i++) {
+      //   if(this.currentIndex !== i && ((i < length - 1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1])
+      //    || (i === length - 1 && positionY >= this.themeTopYs[i]))) {
+      //      this.currentIndex = i
+      //      this.$refs.nav.currentIndex = this.currentIndex 
+      //    }
+      // }
+
+      //取巧做法
+      for( let i = 0; i < length - 1; i++) {
+        if(this.currentIndex !== i && (positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1])) {
+          this.currentIndex = i
+          this.$refs.nav.currentIndex = this.currentIndex
+        }
+      }
     }
-  },
+  },  
   mixins: [itemListenerMixin],
   created() {
     //保存请求来的iid
@@ -90,6 +119,17 @@ export default {
         this.commentInfo = data.rate.list[0]
       }
     })
+
+    //给getThemeTopYs赋值进行防抖操作
+    this.getThemeTopYs = debounce(() => {
+      this.themeTopYs = [] 
+      this.themeTopYs.push(0)
+      this.themeTopYs.push(this.$refs.params.$el.offsetTop - 44)
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44)
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44)
+      this.themeTopYs.push(Number.MAX_VALUE)
+      console.log(this.themeTopYs);
+    }, 200)
 
     //请求推荐数据
     getRecommend().then(res => {
