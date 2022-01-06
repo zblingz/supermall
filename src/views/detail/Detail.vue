@@ -128,7 +128,7 @@ export default {
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44)
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44)
       this.themeTopYs.push(Number.MAX_VALUE)
-      console.log(this.themeTopYs);
+      // console.log(this.themeTopYs);
     }, 200)
 
     //请求推荐数据
