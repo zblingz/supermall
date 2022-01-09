@@ -2,11 +2,6 @@
   <div id="detail">
     <detail-nav-bar class="detail-nav" @titleClick='titleClick' ref="nav"/>
     <scroll class="content" ref="scroll" :probe-type='3' @scroll="contentScroll">
-    <div>
-      <ul v-for="(item, index) in $store.state.cartList" :key="index">
-        <li>{{item}}</li>
-      </ul>
-    </div>
       <detail-swiper :topImages="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
@@ -39,6 +34,7 @@ import emitter from 'tiny-emitter'
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail'
 import {itemListenerMixin, backTopMixin} from 'common/mixin'
 import {debounce} from 'common/utils'
+import {mapActions} from 'vuex'
 
 export default {
   name: 'Detail',
@@ -71,6 +67,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['addCart']),
     imageLoad() {
       // this.$refs.scroll.refresh()
       this.refresh()
@@ -101,7 +98,7 @@ export default {
       this.listenShowBackTop(position)
     },
     addToCart() {
-      //获取购物车需要展示的信息
+      //1.获取购物车需要展示的信息
       const product = {}
       product.image = this.topImages[0]
       product.title = this.itemInfo.title
@@ -109,13 +106,18 @@ export default {
       product.price = this.itemInfo.highNowPrice
       product.iid = this.iid  
 
-      //将商品添加到购物车
-
-      //提交mutations
-      // this.$store.commit('addCart', product)
+      //2.将商品添加到购物车(1. Promise 2. mapActions)
 
       //分发Action
-      this.$store.dispatch('addCart', product)
+      // this.$store.dispatch('addCart', product).then(res => {
+      //   console.log(res);
+      // })
+
+      //使用mapActions辅助函数 actions可以返回一个Promise
+      this.addCart(product).then(res => {
+        console.log(res);
+      })
+
     }
   },  
   mixins: [itemListenerMixin, backTopMixin],
@@ -125,7 +127,7 @@ export default {
 
     //根据iid请求详情数据
     getDetail(this.iid).then(res => {
-      console.log(res);
+      // console.log(res);
       const data = res.result
       //获取顶部图片轮播数据
       this.topImages = data.itemInfo.topImages
