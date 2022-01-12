@@ -12,6 +12,7 @@
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop"/>
     <detail-bottom-bar @addCart='addToCart'/>
+    <!-- <toast :message='message' :isShow='show'/> -->
   </div>
 </template>
 
@@ -30,11 +31,11 @@ import GoodsList from 'components/content/goods/GoodsList.vue'
 
 import emitter from 'tiny-emitter'
 
-
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail'
 import {itemListenerMixin, backTopMixin} from 'common/mixin'
 import {debounce} from 'common/utils'
 import {mapActions} from 'vuex'
+// import Toast from 'components/common/toast/Toast.vue'
 
 export default {
   name: 'Detail',
@@ -48,7 +49,8 @@ export default {
     DetailCommentInfo,
     DetailBottomBar,
     Scroll,
-    GoodsList
+    GoodsList,
+    // Toast
   },
   data() {
     return {
@@ -63,7 +65,9 @@ export default {
       recommends: [],
       themeTopYs: [],
       getThemeTopYs: null,
-      currentIndex: 0
+      currentIndex: 0,
+      // message: '',
+      // show: false
     }
   },
   methods: {
@@ -114,10 +118,19 @@ export default {
       // })
 
       //使用mapActions辅助函数 actions可以返回一个Promise
-      this.addCart(product).then(res => {
-        console.log(res);
-      })
+      // this.addCart(product).then(res => {
+      //   this.show = true
+      //   this.message = res
 
+      //   setTimeout(() => {
+      //     this.show = false
+      //     this.message = ''  
+      //   },1500)
+      // })
+
+      this.addCart(product).then(res => {
+        this.$toast.show(res, 2000)
+      })
     }
   },  
   mixins: [itemListenerMixin, backTopMixin],
@@ -167,8 +180,6 @@ export default {
     getRecommend().then(res => {
       this.recommends = res.data.list
     })
-  },
-  mounted() {
   },
   destroyed() {
     //取消全局事件的监听

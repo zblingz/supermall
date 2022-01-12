@@ -11,7 +11,7 @@
       合计: {{totalPrice}}
     </div>
 
-    <div class="calculate">
+    <div class="calculate" @click="calcClick">
       去计算: {{cartLength}}
     </div>
   </div>
@@ -51,6 +51,11 @@ export default {
         this.cartList.forEach(item => item.checked = false);
       } else { //部分或全部不选中
         this.cartList.forEach(item => item.checked = true);
+      }
+    },
+    calcClick() {
+      if(this.cartLength === 0) {
+        this.$toast.show('请选择商品')
       }
     }
   },
