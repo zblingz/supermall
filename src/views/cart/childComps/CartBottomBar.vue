@@ -90,11 +90,11 @@ export default {
   .totalPrice {
     line-height: 40px;
     margin-left: 10px;  
-    width: 140px;
+    width: 160px;
   }
 
   .calculate {
-    width: 80px;
+    width: 120px;
     line-height: 40px;
     background-color: skyblue;
     color: #fff;
